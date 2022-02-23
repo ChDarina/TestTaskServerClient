@@ -64,6 +64,7 @@ namespace TestTaskClient
                     string otvet = builder.ToString();
                     var item = new ListViewItem(new[] { filename, text, otvet });
                     listView1.Items.Add(item);
+                    listView1.Refresh();
                 }
             }
             catch (Exception exc)   

@@ -55,6 +55,7 @@ namespace TestTaskServer
             text = text.Trim().Replace(" ", string.Empty).Replace(".", string.Empty).Replace(",", string.Empty).Replace(":", string.Empty).
                 Replace(";", string.Empty).Replace("!", string.Empty).Replace("?", string.Empty).ToLower();
             text = text.Replace("ё", "е").Replace("й", "и");
+            Thread.Sleep(1000);
             if (text.Length % 2 != 0)
             {
                 int i = text.Length / 2;
@@ -62,7 +63,6 @@ namespace TestTaskServer
                 for (int j = 0; j < i; j++)
                     pol2 = $"{pol2}{text[text.Length - 1 - j]}";
                 int otv = pol1.CompareTo(pol2);
-                Thread.Sleep(1000);
                 if (otv == 0) return true;
                 else return false;
             }
@@ -88,25 +88,22 @@ namespace TestTaskServer
                 listener.Start();
                 Console.WriteLine("Подключение: {0}:{1}  ",ep.Address, ep.Port);
                 while (true)
-                {
-                    TcpClient client = listener.AcceptTcpClient();
-                    ClientObject clientObject = new ClientObject(client);
+                {                                          
+                    while (clientObjects.Count != 0)
+                        if (currentThreads < N && clientObjects.Count != 0)
+                        {
+                            ClientObject clientObject = clientObjects.Dequeue();
+                            Thread clientThread = new Thread(new ThreadStart(clientObject.Process));
+                            clientThread.Start();
+                            currentThreads++;
+                            if (currentThreads == N) Console.WriteLine("Количество запросов достигло максимального!");
+                        }
                     if (currentThreads < N)
                     {
-                        if (clientObjects.Count != 0)
-                        {
-                            clientObjects.Enqueue(clientObject);
-                            clientObject = clientObjects.Dequeue();
-                        }
-                        Thread clientThread = new Thread(new ThreadStart(clientObject.Process));
-                        clientThread.Start();
-                        currentThreads++;
-                    }
-                    else
-                    {
-                        Console.WriteLine("Количество запросов превысило максимальное!");
+                        TcpClient client = listener.AcceptTcpClient();
+                        ClientObject clientObject = new ClientObject(client);
                         clientObjects.Enqueue(clientObject);
-                    }
+                    }                   
                 }
             }
             catch (Exception ex)
@@ -115,7 +112,7 @@ namespace TestTaskServer
             }
             finally
             {
-                if (listener != null)
+                if (listener != null && clientObjects.Count == 0)
                     listener.Stop();
             }
         }

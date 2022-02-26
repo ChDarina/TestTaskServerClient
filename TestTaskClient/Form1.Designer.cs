@@ -66,10 +66,10 @@
             this.textBox1.ReadOnly = true;
             this.textBox1.Size = new System.Drawing.Size(502, 20);
             this.textBox1.TabIndex = 2;
-            this.textBox1.Text = "C:\\Users\\User\\Documents\\palindroms";
             // 
             // FindPalindroms
             // 
+            this.FindPalindroms.Enabled = false;
             this.FindPalindroms.Location = new System.Drawing.Point(12, 59);
             this.FindPalindroms.Name = "FindPalindroms";
             this.FindPalindroms.Size = new System.Drawing.Size(123, 23);
